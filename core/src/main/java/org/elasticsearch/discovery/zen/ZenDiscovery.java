@@ -350,7 +350,7 @@ public class ZenDiscovery extends AbstractLifecycleComponent<Discovery> implemen
         }
 
         if (clusterService.localNode().equals(masterNode)) {
-            final int requiredJoins = Math.max(0, electMaster.minimumMasterNodes() - 1); // we count as one
+            final int requiredJoins = requiredNumberOfJoins();
             logger.debug("elected as master, waiting for incoming joins ([{}] needed)", requiredJoins);
             nodeJoinController.waitToBeElectedAsMaster(requiredJoins, masterElectionWaitForJoinsTimeout,
                     new NodeJoinController.ElectionCallback() {
@@ -415,6 +415,11 @@ public class ZenDiscovery extends AbstractLifecycleComponent<Discovery> implemen
                 }
             });
         }
+    }
+
+    protected int requiredNumberOfJoins() {
+        // we count as one
+        return Math.max(0, electMaster.minimumMasterNodes() - 1);
     }
 
     /**
