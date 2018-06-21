@@ -20,6 +20,7 @@ integTestRunner {
 
   systemProperty 'tests.rest.cluster.username', System.getProperty('tests.rest.cluster.username', 'test_user')
   systemProperty 'tests.rest.cluster.password', System.getProperty('tests.rest.cluster.password', 'x-pack-test-password')
+  systemProperty 'tests.rest.sniff', System.getProperty('tests.rest.sniff', 'true')
 }
 
 integTestCluster {
