@@ -87,6 +87,10 @@ public abstract class ESClientYamlSuiteTestCase extends ESRestTestCase {
      * Property that allows to control whether spec validation is enabled or not (default true).
      */
     private static final String REST_TESTS_VALIDATE_SPEC = "tests.rest.validate_spec";
+    /**
+     * Property that allows to control whether sniffing nodes is supported or not
+     */
+    private static final String REST_TESTS_SNIFF = "tests.rest.sniff";
 
     private static final String TESTS_PATH = "/rest-api-spec/test";
     private static final String SPEC_PATH = "/rest-api-spec/api";
@@ -117,9 +121,11 @@ public abstract class ESClientYamlSuiteTestCase extends ESRestTestCase {
     public void initAndResetContext() throws Exception {
         if (restTestExecutionContext == null) {
             // Sniff host metadata in case we need it in the yaml tests
-            List<Node> nodesWithMetadata = sniffHostMetadata();
-            client().setNodes(nodesWithMetadata);
-            adminClient().setNodes(nodesWithMetadata);
+            if (Boolean.parseBoolean(System.getProperty(REST_TESTS_SNIFF, "true"))) {
+                List<Node> nodesWithMetadata = sniffHostMetadata();
+                client().setNodes(nodesWithMetadata);
+                adminClient().setNodes(nodesWithMetadata);
+            }
 
             assert adminExecutionContext == null;
             assert blacklistPathMatchers == null;
