@@ -261,8 +261,6 @@ public final class ElasticsearchNodesSniffer implements NodesSniffer {
         } else {
             assert sawRoles : "didn't see roles for [" + nodeId + "]";
         }
-        assert boundHosts.contains(publishedHost) :
-                "[" + nodeId + "] doesn't make sense! publishedHost should be in boundHosts";
         logger.trace("adding node [" + nodeId + "]");
         return new Node(publishedHost, boundHosts, name, version, new Roles(master, data, ingest),
                 unmodifiableMap(realAttributes));
