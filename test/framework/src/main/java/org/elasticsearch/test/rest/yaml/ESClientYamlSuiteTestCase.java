@@ -51,10 +51,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Runs a suite of yaml tests shared with all the official Elasticsearch
@@ -126,6 +128,29 @@ public abstract class ESClientYamlSuiteTestCase extends ESRestTestCase {
         if (restTestExecutionContext == null) {
             // Sniff host metadata in case we need it in the yaml tests
             List<Node> nodesWithMetadata = sniffHostMetadata();
+            Iterator<HttpHost> roundRobinHost = new Iterator<HttpHost>() {
+                Iterator<HttpHost> currentIterator = getClusterHosts().iterator();
+                @Override
+                public boolean hasNext() {
+                    return getClusterHosts().isEmpty() == false;
+                }
+
+                @Override
+                public synchronized HttpHost next() {
+                    if (hasNext() && currentIterator.hasNext() == false)
+                        currentIterator = getClusterHosts().iterator();
+                    return currentIterator.next();
+                }
+            };
+            nodesWithMetadata = nodesWithMetadata.stream().map((Node node) -> {
+               return new Node(
+                       roundRobinHost.next(),
+                       node.getBoundHosts(),
+                       node.getName(),
+                       node.getVersion(),
+                       node.getRoles(),
+                       node.getAttributes());
+            }).collect(Collectors.toList());
             client().setNodes(nodesWithMetadata);
             adminClient().setNodes(nodesWithMetadata);
 
